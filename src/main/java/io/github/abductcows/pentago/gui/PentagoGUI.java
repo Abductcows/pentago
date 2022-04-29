@@ -2,6 +2,7 @@ package io.github.abductcows.pentago.gui;
 
 import io.github.abductcows.pentago.Board;
 import io.github.abductcows.pentago.Move;
+import io.github.abductcows.pentago.Winner;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,13 +15,31 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class PentagoGUI {
+public final class PentagoGUI {
 
     private Board board;
     private int size;
     private JFrame frame;
     private List<PentagoCell> cells;
     private Move nextMove;
+
+    void init() {
+        board = new Board();
+        size = board.sideSize;
+        nextMove = Move.W;
+
+        frame = new JFrame("Pentago");
+        frame.setSize(1200, 1200);
+
+        initCells();
+    }
+
+    private void cleanUp() {
+        if (frame != null) {
+            frame.dispose();
+            frame = null;
+        }
+    }
 
     public void run() {
         init();
@@ -72,17 +91,6 @@ public class PentagoGUI {
         return quadrants;
     }
 
-    void init() {
-        board = new Board();
-        size = board.sideSize;
-        nextMove = Move.W;
-
-        frame = new JFrame("Pentago");
-        frame.setSize(1200, 1200);
-
-        initCells();
-    }
-
     private void initCells() {
 
         cells = IntStream.range(0, size * size)
@@ -93,16 +101,39 @@ public class PentagoGUI {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (board.get(c.index) == Move.Empty) {
+                        board.set(c.index, nextMove);
+                        refreshBoard();
+                    }
                     System.out.printf("Click on cell (%d, %d)\n", c.index / size, c.index % size);
                 }
             }
         }));
     }
 
-    private void cleanUp() {
-        if (frame != null) {
-            frame.dispose();
-            frame = null;
+    private void refreshBoard() {
+
+        var newBoard = board.getMoves();
+        for (int i = 0; i < newBoard.size(); i++) {
+            cells.get(i).setBackground(newBoard.get(i));
         }
+
+        var winner = board.checkWinner();
+        if (winner != Winner.Undecided) {
+
+            showWinnerMessage(winner);
+            cleanUp();
+            run();
+        } else {
+            nextMove = nextMove.getNextMove();
+        }
+    }
+
+    private void showWinnerMessage(Winner winner) {
+        JOptionPane.showConfirmDialog(
+                null,
+                winner.getWinMessage(),
+                "Game Over",
+                JOptionPane.DEFAULT_OPTION);
     }
 }
