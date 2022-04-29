@@ -85,7 +85,7 @@ public final class PentagoGUI {
         var border = BorderFactory.createEmptyBorder(8, 8, 8, 8);
         quadrants.forEach(q -> {
             q.setBackground(new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255)));
-            q.setLayout(new GridLayout(3, 3, 8, 8));
+            q.setLayout(new GridLayout(board.quadrantSize, board.quadrantSize, 8, 8));
             q.setBorder(border);
         });
         return quadrants;

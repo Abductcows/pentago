@@ -6,6 +6,7 @@ import java.util.List;
 public class Board {
 
     public final int sideSize = 6;
+    public final int quadrantSize = 3;
     public final int winTarget = 5;
     private final List<Move> board = Move.getEmptyBoard(sideSize);
 
@@ -91,25 +92,24 @@ public class Board {
 
     private Move[][] getQuadrant(int quadrant) {
 
-        var result = new Move[3][3];
+        var result = new Move[quadrantSize][quadrantSize];
 
         var n = board.size();
         int inserted = 0;
 
         for (int i = 0; i < n; i++) {
             if (quadrantNumber(i) != quadrant) continue;
-            result[inserted / 3][inserted % 3] = board.get(i);
+            result[inserted / quadrantSize][inserted % quadrantSize] = board.get(i);
             ++inserted;
         }
-        assert inserted == 9;
 
         return result;
     }
 
     private void applyQuadrant(int quadrantNumber, Move[][] quadrant) {
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < quadrantSize; i++) {
+            for (int j = 0; j < quadrantSize; j++) {
                 board.set(transformIndex(i, j, quadrantNumber), quadrant[i][j]);
             }
         }
@@ -139,9 +139,9 @@ public class Board {
             return i * sideSize + j + sideSize / 2;
         }
         if (quadrantTarget == 2) {
-            return 3 * sideSize + i * sideSize + j;
+            return quadrantSize * sideSize + i * sideSize + j;
         }
-        return 3 * sideSize + i * sideSize + j + sideSize / 2;
+        return quadrantSize * sideSize + i * sideSize + j + sideSize / 2;
     }
 
     private <T> void rotateLeft90(T[][] matrix) {
