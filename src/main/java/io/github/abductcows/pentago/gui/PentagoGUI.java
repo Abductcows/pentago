@@ -21,6 +21,7 @@ public final class PentagoGUI {
     private int size;
     private JFrame frame;
     private List<PentagoCell> cells;
+    private JLabel statusBar;
     private Move nextMove;
 
     void init() {
@@ -28,6 +29,7 @@ public final class PentagoGUI {
         size = board.sideSize;
         nextMove = Move.W;
 
+        statusBar = new JLabel(" ", SwingConstants.CENTER);
         frame = new JFrame("Pentago");
         frame.setSize(1200, 1200);
 
@@ -47,18 +49,32 @@ public final class PentagoGUI {
         var r = new Random(987);
         var quads = genQuadrants(r);
 
-        var content = new JPanel(new GridLayout(2, 2, 10, 10));
-        content.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        content.setBackground(Color.BLACK);
+        var quadrantSpace = new JPanel(new GridLayout(2, 2, 10, 10));
+        quadrantSpace.setBorder(BorderFactory.createEmptyBorder(20, 18, 20, 18));
+        quadrantSpace.setBackground(Color.BLACK);
 
-
+        var content = new JPanel(new GridBagLayout());
         distributeCells(cells, quads);
-        quads.forEach(content::add);
-        frame.add(content);
+        quads.forEach(quadrantSpace::add);
 
+        var constraints = new GridBagConstraints();
+        constraints.weightx = constraints.weighty = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        content.add(quadrantSpace, constraints);
+
+        addStatusBar(content);
+
+        frame.add(content);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    }
+
+    private void addStatusBar(JPanel content) {
+        var constraints = new GridBagConstraints();
+        statusBar.setFont(new Font("Sans Serif", Font.PLAIN, 45));
+        content.add(statusBar, constraints);
     }
 
     void distributeCells(List<PentagoCell> cells, List<JPanel> quads) {
