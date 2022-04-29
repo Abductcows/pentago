@@ -75,4 +75,99 @@ public class Board {
     public List<Move> getMoves() {
         return Collections.unmodifiableList(board);
     }
+
+    public void rotate(int quadrantNumber, boolean isLeftRotation) {
+
+        var quadrant = getQuadrant(quadrantNumber);
+
+        if (isLeftRotation) {
+            rotateLeft90(quadrant);
+        } else {
+            rotateRight90(quadrant);
+        }
+
+        applyQuadrant(quadrantNumber, quadrant);
+    }
+
+    private Move[][] getQuadrant(int quadrant) {
+
+        var result = new Move[3][3];
+
+        var n = board.size();
+        int inserted = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (quadrantNumber(i) != quadrant) continue;
+            result[inserted / 3][inserted % 3] = board.get(i);
+            ++inserted;
+        }
+        assert inserted == 9;
+
+        return result;
+    }
+
+    private void applyQuadrant(int quadrantNumber, Move[][] quadrant) {
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board.set(transformIndex(i, j, quadrantNumber), quadrant[i][j]);
+            }
+        }
+    }
+
+    private int quadrantNumber(int elementIndex) {
+        var half = sideSize / 2;
+        if (elementIndex / sideSize < half) {
+            if (elementIndex % sideSize < half) {
+                return 0;
+            }
+            return 1;
+        }
+        if (elementIndex % sideSize < half) {
+            return 2;
+        }
+        return 3;
+    }
+
+
+    private int transformIndex(int i, int j, int quadrantTarget) {
+
+        if (quadrantTarget == 0) {
+            return i * sideSize + j;
+        }
+        if (quadrantTarget == 1) {
+            return i * sideSize + j + sideSize / 2;
+        }
+        if (quadrantTarget == 2) {
+            return 3 * sideSize + i * sideSize + j;
+        }
+        return 3 * sideSize + i * sideSize + j + sideSize / 2;
+    }
+
+    private <T> void rotateLeft90(T[][] matrix) {
+        int n = matrix.length;
+        for (int i = 0; i < (n + 1) / 2; i++) {
+            for (int j = 0; j < n / 2; j++) {
+                T temp = matrix[i][j];
+                matrix[i][j] = matrix[j][n - 1 - i];
+                matrix[j][n - 1 - i] = matrix[n - 1 - i][n - j - 1];
+                matrix[n - 1 - i][n - j - 1] = matrix[n - 1 - j][i];
+                matrix[n - 1 - j][i] = temp;
+            }
+        }
+    }
+
+    private <T> void rotateRight90(T[][] matrix) {
+        int n = matrix.length;
+        for (int i = 0; i < (n + 1) / 2; i++) {
+            for (int j = 0; j < n / 2; j++) {
+                T temp = matrix[n - 1 - j][i];
+                matrix[n - 1 - j][i] = matrix[n - 1 - i][n - j - 1];
+                matrix[n - 1 - i][n - j - 1] = matrix[j][n - 1 - i];
+                matrix[j][n - 1 - i] = matrix[i][j];
+                matrix[i][j] = temp;
+            }
+        }
+    }
+
 }

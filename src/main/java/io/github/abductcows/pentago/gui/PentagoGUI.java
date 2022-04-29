@@ -23,12 +23,9 @@ public final class PentagoGUI {
     private List<PentagoCell> cells;
     private Move nextMove;
 
-    private List<Move> previousBoard;
-
     void init() {
         board = new Board();
         size = board.sideSize;
-        previousBoard = board.getMoves();
         nextMove = Move.W;
 
         frame = new JFrame("Pentago");
@@ -109,9 +106,29 @@ public final class PentagoGUI {
                         processNewMove(c.index);
                     }
                     System.out.printf("Click on cell (%d, %d)\n", c.index / size, c.index % size);
+                } else {
+
+                    var quadrantNumber = getQuadrantNumberTemp(c.index);
+                    board.rotate(quadrantNumber, true);
+                    processRotation();
                 }
             }
         }));
+    }
+
+    // todo remove this
+    private int getQuadrantNumberTemp(int elementIndex) {
+        var half = size / 2;
+        if (elementIndex / size < half) {
+            if (elementIndex % size < half) {
+                return 0;
+            }
+            return 1;
+        }
+        if (elementIndex % size < half) {
+            return 2;
+        }
+        return 3;
     }
 
     private void processNewMove(int changeIndex) {
@@ -126,6 +143,25 @@ public final class PentagoGUI {
             run();
         } else {
             nextMove = nextMove.getNextMove();
+        }
+    }
+
+    private void processRotation() {
+        redrawBoard();
+
+        var winner = board.checkWinner();
+        if (winner != Winner.Undecided) {
+
+            showWinnerMessage(winner);
+            cleanUp();
+            run();
+        }
+    }
+
+    private void redrawBoard() {
+
+        for (int i = 0; i < size * size; i++) {
+            cells.get(i).setBackground(board.get(i));
         }
     }
 
