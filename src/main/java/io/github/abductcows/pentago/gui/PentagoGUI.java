@@ -23,9 +23,12 @@ public final class PentagoGUI {
     private List<PentagoCell> cells;
     private Move nextMove;
 
+    private List<Move> previousBoard;
+
     void init() {
         board = new Board();
         size = board.sideSize;
+        previousBoard = board.getMoves();
         nextMove = Move.W;
 
         frame = new JFrame("Pentago");
@@ -103,7 +106,7 @@ public final class PentagoGUI {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (board.get(c.index) == Move.Empty) {
                         board.set(c.index, nextMove);
-                        refreshBoard();
+                        processNewMove(c.index);
                     }
                     System.out.printf("Click on cell (%d, %d)\n", c.index / size, c.index % size);
                 }
@@ -111,12 +114,9 @@ public final class PentagoGUI {
         }));
     }
 
-    private void refreshBoard() {
+    private void processNewMove(int changeIndex) {
 
-        var newBoard = board.getMoves();
-        for (int i = 0; i < newBoard.size(); i++) {
-            cells.get(i).setBackground(newBoard.get(i));
-        }
+        cells.get(changeIndex).setBackground(nextMove);
 
         var winner = board.checkWinner();
         if (winner != Winner.Undecided) {
