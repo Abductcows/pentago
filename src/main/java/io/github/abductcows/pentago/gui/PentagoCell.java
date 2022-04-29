@@ -15,7 +15,7 @@ public class PentagoCell extends JButton {
     private static final Map<Move, Color> moveColors = Map.of(
             Move.B, Color.BLACK,
             Move.W, Color.WHITE,
-            Move.Empty, new Color(149, 85, 42)
+            Move.Empty, new Color(0x7D7E8C)
     );
 
     public PentagoCell(int index) {
