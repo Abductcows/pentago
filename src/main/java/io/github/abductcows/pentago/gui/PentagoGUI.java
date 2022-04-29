@@ -31,7 +31,10 @@ public final class PentagoGUI {
 
         statusBar = new JLabel(" ", SwingConstants.CENTER);
         frame = new JFrame("Pentago");
-        frame.setSize(1200, 1200);
+
+        var screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        var windowSize = Math.min(screenSize.width, screenSize.height) * 0.9;
+        frame.setSize((int) windowSize, (int) (windowSize * 1.05));
 
         initCells();
     }
