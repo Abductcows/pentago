@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -22,14 +23,20 @@ public final class PentagoGUI {
     private JFrame frame;
     private List<PentagoCell> cells;
     private JLabel statusBar;
+
     private Move nextMove;
+    private final AtomicBoolean canPlay = new AtomicBoolean(true);
+    private final AtomicBoolean canRotate = new AtomicBoolean(false);
 
     void init() {
         board = new Board();
         size = board.sideSize;
-        nextMove = Move.W;
 
-        statusBar = new JLabel(" ", SwingConstants.CENTER);
+        nextMove = Move.W;
+        canPlay.set(true);
+        canRotate.set(false);
+
+        statusBar = new JLabel("LMB to play, MWup to rotate right, MWdown to rotate left", SwingConstants.CENTER);
         frame = new JFrame("Pentago");
 
         var screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -120,17 +127,28 @@ public final class PentagoGUI {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (board.get(c.index) == Move.Empty) {
+                    if (board.get(c.index) == Move.Empty
+                            && canPlay.compareAndSet(true, false)) {
+
                         board.set(c.index, nextMove);
                         processNewMove(c.index);
                     }
-                    System.out.printf("Click on cell (%d, %d)\n", c.index / size, c.index % size);
-                } else {
-
-                    var quadrantNumber = getQuadrantNumberTemp(c.index);
-                    board.rotate(quadrantNumber, true);
-                    processRotation();
                 }
+            }
+        }));
+
+        cells.forEach(c -> c.addMouseWheelListener((e) -> {
+
+            if (canRotate.compareAndSet(true, false)) {
+
+                var quadrantNumber = getQuadrantNumberTemp(c.index);
+                var rot = e.getWheelRotation();
+                if (rot < 0) {
+                    board.rotate(quadrantNumber, true);
+                } else if (rot > 0) {
+                    board.rotate(quadrantNumber, false);
+                }
+                processRotation();
             }
         }));
     }
@@ -162,6 +180,7 @@ public final class PentagoGUI {
             run();
         } else {
             nextMove = nextMove.getNextMove();
+            canRotate.set(true);
         }
     }
 
@@ -174,6 +193,8 @@ public final class PentagoGUI {
             showWinnerMessage(winner);
             cleanUp();
             run();
+        } else {
+            canPlay.set(true);
         }
     }
 

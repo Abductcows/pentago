@@ -25,7 +25,6 @@ public enum Move {
 
     public Winner asWinner() {
         return switch (this) {
-
             case B -> Winner.B;
             case W -> Winner.W;
             case Empty -> Winner.Undecided;
