@@ -132,8 +132,17 @@ public final class PentagoGUI {
     private void showWinnerMessage(Winner winner) {
         JOptionPane.showConfirmDialog(
                 null,
-                winner.getWinMessage(),
+                getWinMessage(winner),
                 "Game Over",
                 JOptionPane.DEFAULT_OPTION);
+    }
+
+    private String getWinMessage(Winner winner) {
+        return switch (winner) {
+            case B -> "Black Won";
+            case W -> "White won";
+            case Draw -> "It's a Draw";
+            case Undecided -> throw new IllegalStateException("Win message requested for Undecided state");
+        };
     }
 }
