@@ -56,7 +56,7 @@ public final class PentagoGUI {
     public void run() {
         init();
 
-        var r = new Random(987);
+        var r = new Random(55);
         var quads = genQuadrants(r);
 
         var quadrantSpace = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -74,8 +74,22 @@ public final class PentagoGUI {
         content.add(quadrantSpace, constraints);
 
         addStatusBar(content);
-
         frame.add(content);
+
+        var menuBar = new JMenuBar();
+        var rules = new JMenuItem("rules");
+        rules.setIcon(new ImageIcon("rules_icon.png"));
+        rules.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    System.out.println("Click on rules");
+                }
+            }
+        });
+        menuBar.add(rules);
+        frame.setJMenuBar(menuBar);
+
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
